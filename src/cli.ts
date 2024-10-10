@@ -1,4 +1,4 @@
-import { Pool, connectToDb } from './connections.ts';
+import { Pool, connectToDb } from './connections.js';
 import { QueryResult } from 'pg';
 import inquirer from 'inquirer';
 

@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node dist/index.js"
+    "start": "npm run build && node dist/cli.js"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +19,6 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/pg": "^8.11.6",
-    "typescript": "^5.2.2"
+    "typescript": "^5.6.3"
   }
 }
