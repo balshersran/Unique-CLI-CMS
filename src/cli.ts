@@ -1,16 +1,13 @@
-import express from 'express';
-import { Pool, connectToDb} from './connections.ts';
+import { Pool, connectToDb } from './connections.ts';
+import { QueryResult } from 'pg';
 import inquirer from 'inquirer';
 
 // TODO: wait to connect to database first
+const pool = new Pool;
 await connectToDb();
 
-// TODO: make a variable that will call on express
-const app = express();
-
-
 // TODO: make a function that houses inquirer and all other functions related to it
-startCli(): void {
+function startCli() {
     inquirer
         .prompt([
             {
@@ -30,32 +27,73 @@ startCli(): void {
                 ],
             },
         ])
-        .then((response) => {
-            switch (response.action) {
-                case 'View All Employees':
-                    this.viewEmployees();
-                    break;
-                case 'Add Employee':
-                    this.addEmployee();
-                    break;
-                case 'Update Employee Role':
-                    this.updateEmpRole();
-                    break;
-                case 'View All Roles':
-                    this.viewRoles();
-                case 'Add Role':
-                    this.addRole();
-                case 'View All Departments':
-                    this.viewDepartments();
-                    break;
-                case 'Add Department':
-                    this.addDepartment();
-                    break;
-                default:
-                    process.exit[0];
+        // TODO: take the responses from the choices above and see if they need another function to be called or if they can just update from within
+        .then((res) => {
+            if (res.action === 'View All Employees') {
+                const viewAllEmp = `SELECT * FROM employee`;
+                pool.query(viewAllEmp);
+                console.table(viewAllEmp);
+            } else if (res.action === 'Add Employee') {
+                addEmployee();
+                return;
+            } else if (res.action === 'Update Employee Role') {
+
+            } else if (res.action === 'View All Roles') {
+                const viewRoles = `SELECT * FROM role`;
+                pool.query(viewRoles);
+                console.table(viewRoles);
+            } else if (res.action === 'Add Role') {
+
+            } else if (res.action === 'View All Departments') {
+                const viewDepartments = `SELECT * FROM department`;
+                pool.query(viewDepartments);
+                console.table(viewDepartments);
+            } else if (res.action === 'Add Department') {
+
+            } else {
+                process.exit(0);
             }
         })
-};
+}
+startCli();
 
-//TODO: create the viewEmployees method which selects all table data from the employees table
-viewEmployees()
+function addEmployee() {
+    inquirer
+        .prompt([{
+            name: 'first_name',
+            type: 'input',
+            message: 'What is the first name of new Employee',
+        },
+        {
+            name: 'last_name',
+            type: 'input',
+            message: 'What is the last name of the new Employee',
+        }, 
+        {
+            name: 'emp_id',
+            type: 'input',
+            message: 'Please assign an id number',
+        },
+        ])
+        .then((res) => {
+            const firstName = res.first_name;
+            const lastName = res.last_name;
+            const empId = res.emp_id;
+            const addEmpSql = `INSERT INTO employee (first_name) (last_name) (id) VALUES ($1 ${firstName}) ($2 ${lastName}) ($3 ${empId})`;
+            pool.query(addEmpSql);
+        })
+}
+// function updateEmployeeRole(){}
+// function addRole(){}
+function addDepartment(){
+    inquirer
+        .prompt([{
+            name:'new_department',
+            type: 'input',
+            message: 'What is the name of the new Department',
+        }
+    ])
+    .then((res) => {
+        
+    })
+}

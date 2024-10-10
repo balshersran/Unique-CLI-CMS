@@ -10,8 +10,8 @@ INSERT INTO roles (id, title, salary , department_id)
     VALUES
         (1, 'Sales Manager', 100000 ,1),
         (2, 'Sales Representative', 80000, 1),
-        (3, 'Marketing Manager', , 2),
-        (4, 'Marketing Analyst', ,2),
+        (3, 'Marketing Manager', 75000, 2),
+        (4, 'Marketing Analyst', 60000,2),
         (5, 'Junior Software Engineer', 125000 ,4),
         (6, 'Senior Software Engineer', 180000 ,4),
         (7, 'Recruiter', 75000 , 5),
