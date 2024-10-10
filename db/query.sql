@@ -1,0 +1,3 @@
+SELECT * FROM TABLE employee;
+
+SELECT * FROM TABLE roles;

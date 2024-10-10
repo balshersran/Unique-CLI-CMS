@@ -2,7 +2,7 @@
   "name": "unique-cli-cms",
   "version": "1.0.0",
   "description": "CLI based Employee Tracker",
-  "main": "cli.ts",
+  "main": "cli.js",
   "type": "module",
   "scripts": {
     "build": "tsc",

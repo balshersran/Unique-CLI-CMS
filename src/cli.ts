@@ -30,7 +30,7 @@ function startCli() {
         // TODO: take the responses from the choices above and see if they need another function to be called or if they can just update from within
         .then((res) => {
             if (res.action === 'View All Employees') {
-                const viewAllEmp = `SELECT * FROM employee`;
+                const viewAllEmp = `SELECT * FROM TABLE employee`;
                 pool.query(viewAllEmp);
                 console.table(viewAllEmp);
             } else if (res.action === 'Add Employee') {
@@ -39,17 +39,17 @@ function startCli() {
             } else if (res.action === 'Update Employee Role') {
 
             } else if (res.action === 'View All Roles') {
-                const viewRoles = `SELECT * FROM role`;
+                const viewRoles = `SELECT * FROM TABLE roles`;
                 pool.query(viewRoles);
                 console.table(viewRoles);
             } else if (res.action === 'Add Role') {
 
             } else if (res.action === 'View All Departments') {
-                const viewDepartments = `SELECT * FROM department`;
+                const viewDepartments = `SELECT * FROM TABLE department`;
                 pool.query(viewDepartments);
                 console.table(viewDepartments);
             } else if (res.action === 'Add Department') {
-
+                addDepartment();
             } else {
                 process.exit(0);
             }
@@ -81,19 +81,30 @@ function addEmployee() {
             const empId = res.emp_id;
             const addEmpSql = `INSERT INTO employee (first_name) (last_name) (id) VALUES ($1 ${firstName}) ($2 ${lastName}) ($3 ${empId})`;
             pool.query(addEmpSql);
+            console.table(addEmpSql);
         })
 }
 // function updateEmployeeRole(){}
 // function addRole(){}
+// TODO: addDepartment method that will insert a new department into department table, need properties name, id
 function addDepartment(){
     inquirer
         .prompt([{
-            name:'new_department',
+            name: 'new_dept',
             type: 'input',
             message: 'What is the name of the new Department',
-        }
+        },
+        {
+            name: 'new_dept_id',
+            type: 'input',
+            message: 'Give your new Department an id number',
+        },
     ])
     .then((res) => {
-        
+        const newDept = res.new_dept;
+        const newDeptId = res.new_dept_id;
+        const newDeptSql = `INSERT INTO department (name) (id) VALUES ($1 ${newDept}) ($2 ${newDeptId})`;
+        pool.query(newDeptSql);
+        console.table(newDeptSql);
     })
 }
