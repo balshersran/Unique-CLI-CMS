@@ -21,13 +21,13 @@ INSERT INTO roles (id, title, salary , department_id)
 
 INSERT INTO employee (id, first_name, last_name, role_id, manager_id)
     VALUES
-        (1, 'John', 'Kennedy', , )
-        (2, 'Nikola', 'Tesla', ,)
-        (3,)
-        (4,)
-        (5,)
-        (6,)
-        (7,)
-        (8,)
-        (9,)
-        (10,)
+        (1, 'John', 'Kennedy', 7 , ),
+        (2, 'Nikola', 'Tesla', 3 , ),
+        (3, 'Himmat', 'Sandhu', 10, ),
+        (4, 'Jane', 'Doe', 2 , 2)
+        (5, 'Scrappy', 'McFarland', 6 , ),
+        (6, 'Sean', 'Coombs', 1 , 1),
+        (7, 'Buggs', 'Bunny', 8 , ),
+        (8, 'Jacob', 'Martinelli', 5 , ),
+        (9, 'Mario', 'Andretti', 4 , ),
+        (10, 'Monkey D.', 'Luffy', 9 , )
