@@ -1,18 +1,8 @@
-import { Pool, connectToDb } from './connections.js';
-import { QueryResult } from 'pg';
+import { pool, connectToDb } from './connections.js';
 import inquirer from 'inquirer';
-import dotenv from 'dotenv';
 
-dotenv.config();
 
 // TODO: wait to connect to database first
-const pool = new Pool({
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    host: 'localhost',
-    database: process.env.DB_NAME,
-    port: 5432,
-});
 await connectToDb();
 
 // TODO: make a function that houses inquirer and all other functions related to it
@@ -39,7 +29,7 @@ function startCli() {
         // TODO: take the responses from the choices above and see if they need another function to be called or if they can just update from within
         .then((res) => {
             if (res.action === 'View All Employees') {
-                const viewAllEmp = `SELECT * FROM TABLE employee`;
+                const viewAllEmp = `SELECT * FROM employee`;
                 pool.query(viewAllEmp);
                 console.table(viewAllEmp);
             } else if (res.action === 'Add Employee') {
@@ -88,13 +78,15 @@ function addEmployee() {
             const firstName = res.first_name;
             const lastName = res.last_name;
             const empId = res.emp_id;
-            const addEmpSql = `INSERT INTO employee (first_name, last_name, id) VALUES ($1 ,$2 , $3)`;
             const empArr = [firstName, lastName, empId];
+            const addEmpSql = `INSERT INTO employee (first_name, last_name, id) VALUES ($1 ,$2 , $3)`;
             pool.query(addEmpSql, empArr);
             console.table(addEmpSql);
         })
 }
+// TODO: updating employee role is changing id to see if employee is now "promoted"
 // function updateEmployeeRole(){}
+
 // function addRole(){}
 // TODO: addDepartment method that will insert a new department into department table, need properties name, id
 function addDepartment(){
@@ -113,8 +105,8 @@ function addDepartment(){
     .then((res) => {
         const newDept = res.new_dept;
         const newDeptId = res.new_dept_id;
-        const newDeptSql = `INSERT INTO department (name , id) VALUES ($1 , $2)`;
         const deptArr = [newDept, newDeptId];
+        const newDeptSql = `INSERT INTO department (name , id) VALUES ($1 , $2)`;
         pool.query(newDeptSql, deptArr);
         console.table(newDeptSql);
     })
