@@ -1,3 +1,3 @@
-SELECT * FROM TABLE employee;
+SELECT * FROM employee;
 
-SELECT * FROM TABLE roles;
+SELECT * FROM role;
