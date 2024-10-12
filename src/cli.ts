@@ -151,6 +151,7 @@ function addDepartment() {
                     console.error('Error: ', err);
                 } else {
                     console.log('New Department Added.');
+                    console.table(res.rows);
                     startCli();
                 }
             })
