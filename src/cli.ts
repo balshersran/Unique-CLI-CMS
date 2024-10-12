@@ -1,8 +1,5 @@
 import { pool, connectToDb } from './connections.js';
 import inquirer from 'inquirer';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 // TODO: wait to connect to database first
 await connectToDb();
@@ -33,7 +30,6 @@ function startCli() {
             switch (res.action) {
                 case 'View All Employees':
                     viewAllEmployees();
-                    startCli();
                     break;
                 case 'Add Employee':
                     addEmployee();
@@ -72,16 +68,47 @@ function viewAllEmployees() {
             console.table(res.rows)
         }
     })
+    startCli();
 }
 
-function addEmployee() {}
+function addEmployee() {
+    inquirer
+        .prompt([
+            {
+                name: 'firstName',
+                type: 'input',
+                message: 'What is the first name?',
+            },
+            {
+                name: 'lastName',
+                type: 'input',
+                message: 'What is the last name?',
+            },
+            {
+                name: 'roleId',
+                type: 'input',
+                message: 'Assign a Role Id Number',
+            },
+        ])
+        .then((res) => {
+            const sql = `INSERT INTO employee (first_name , last_name , roleId) VALUES ($1 , $2, $3)`;
+            pool.query(sql, [res.firstName , res.lastName , res.roleId] , (err, res) => {
+                if (err) {
+                    console.error('Error: ', err);
+                } else {
+                    console.log('Employee Added Successfully!');
+                    startCli();
+                }
+            })
+        })
+}
 
-function updateEmployeeRole() {}
+function updateEmployeeRole() { }
 
 function viewAllRoles() {
     const sql = `SELECT * FROM role`;
     pool.query(sql, (err, res) => {
-        if(err) {
+        if (err) {
             console.error('Error: ', err);
         } else {
             console.table(res.rows)
@@ -89,19 +116,45 @@ function viewAllRoles() {
     })
 }
 
-function addRole() {}
+function addRole() { }
 
 function viewAllDepartments() {
     const sql = `SELECT * FROM department`;
     pool.query(sql, (err, res) => {
-        if(err) {
-            console.error('Error: ',err);
+        if (err) {
+            console.error('Error: ', err);
         } else {
             console.table(res.rows);
         }
     })
+    startCli();
 }
 
-function addDepartment() {}
+function addDepartment() {
+    inquirer
+        .prompt([
+            {
+                name: 'newDept',
+                type: 'input',
+                message:'Enter name of new Department',
+            },
+            {
+                name: 'newDeptId',
+                type: 'input',
+                message: 'Assign a ID number'
+            }
+        ])
+        .then((res) => {
+            const sql = `INSERT INTO department (id , name) VALUES ($1, $2)`;
+            pool.query(sql, [res.newDeptId , res.newDept], (err, res) => {
+                if(err) {
+                    console.error('Error: ', err);
+                } else {
+                    console.log('New Department Added.');
+                    startCli();
+                }
+            })
+        })
+ }
 
 
