@@ -15,3 +15,13 @@ SELECT * FROM employee;
 
 
 DELETE FROM department WHERE id IN (7)
+
+INSERT INTO employee (first_name , last_name) VALUES ($1 , $2)
+
+INSERT INTO employee (first_name , last_name) VALUES ($1 , $2) RETURNING id
+
+UPDATE employee SET role_id = $1 WHERE id = $2
+
+UPDATE employee
+SET role_id = ?
+WHERE id = ?;
