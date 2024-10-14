@@ -128,7 +128,7 @@ function updateEmployeeRole() {
                 }
             ])
             .then((response) => {
-                const updateEmpRole = `UPDATE employee SET role_id = $1 WHERE id = $2`;
+                const updateEmpRole = `UPDATE employee SET role_id = $1 WHERE id = $2 RETURNING *`;
                 pool.query(updateEmpRole, [response.currentRoleId, response.newRoleId], (err, result) => {
                     if (err) {
                         console.error('Error:', err);
@@ -170,7 +170,7 @@ function addRole() {
             }
         ])
         .then((response) => {
-            const sql = `INSERT INTO role (title , salary) ($1, $2)`;
+            const sql = `INSERT INTO role (title , salary) VALUES ($1, $2)`;
             pool.query(sql, [response.roleTitle, response.roleSalary], (err, result) => {
                 if (err) {
                     console.error('Error: ', err);
