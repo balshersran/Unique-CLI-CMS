@@ -11,7 +11,7 @@ function startCli() {
         .prompt([
             {
                 // TODO: make the prompts the following choices: What would you like to do? -- view all employees, add employee, update employee role, view all roles, add role, view all departments, add department
-                name: 'action',
+                name: 'choices',
                 type: 'list',
                 message: 'What would you like to do?',
                 choices: [
@@ -27,8 +27,8 @@ function startCli() {
             },
         ])
         // TODO: take the responses from the choices above and see if they need another function to be called or if they can just update from within
-        .then((res) => {
-            switch (res.action) {
+        .then((response) => {
+            switch (response.choices) {
                 case 'View All Employees':
                     viewAllEmployees();
                     break;
@@ -62,14 +62,14 @@ startCli();
 
 function viewAllEmployees() {
     const sql = `SELECT * FROM employee`;
-    pool.query(sql, (err, res) => {
+    pool.query(sql, (err, result) => {
         if (err) {
-            console.error('Error:', err)
+            console.error('Error:', err);
         } else {
-            console.table(res.rows)
+            console.table(result.rows);
+            startCli();
         }
     })
-    startCli();
 }
 
 function addEmployee() {
@@ -78,65 +78,81 @@ function addEmployee() {
             {
                 name: 'firstName',
                 type: 'input',
-                message: 'Input first name',
+                message: 'Enter First Name:',
             },
             {
                 name: 'lastName',
                 type: 'input',
-                message: 'Input last name',
+                message: 'Enter Last Name:',
             },
+            {
+                name: 'roleId',
+                type: 'input',
+                message: 'Add a Role ID:',
+            }
         ])
         .then((response) => {
-            const insertNewEmp = `INSERT INTO employee (first_name , last_name) VALUES ($1 , $2) RETURNING id`;
-            pool.query(insertNewEmp, [response.firstName, response.lastName], (err, result) => {
+            const newEmpQuery = `INSERT INTO employee (first_name , last_name, role_id) VALUES ($1 , $2 , $3) RETURNING *`;
+            pool.query(newEmpQuery, [response.firstName, response.lastName, response.roleId], (err, result) => {
                 if (err) {
                     console.error('Error:', err);
+                    startCli();
+                } else {
+                    console.log(`New Employee: ${response.firstName} ${response.lastName} added succesfully.`);
+                    console.table(result.rows[0]);
+                    startCli();
                 }
-                const roleQuery = `SELECT id , title FROM role`;
-                pool.query(roleQuery, (err, result) => {
-                    if (err) {
-                        console.error('Error:', err);
-                    }
-                    inquirer
-                        .prompt([
-                            {
-                                name: 'roleId',
-                                type: 'input',
-                                message: 'From Role Table shown above, insert desired Role Id:',
-                            }
-                        ])
-                        .then((response) => {
-                            const roleID = response.roleId;
-                            const insertRoleQuery = `UPDATE employee SET role_id = $1 WHERE id = $2`;
-                            pool.query(insertRoleQuery, [roleID], (err, result) => {
-                                if (err) {
-                                    console.error('Error:', err);
-                                    startCli();
-                                } else {
-                                    console.table(result.rows);
-                                    startCli();
-                                }
-                            })
-                        })
-                })
             })
         })
 }
 
-function updateEmployeeRole() { 
-    const updateEmpRole = ``
+function updateEmployeeRole() {
+    const currentEmpRoleQuery = `SELECT * FROM employee`;
+    pool.query(currentEmpRoleQuery, (err, result) => {
+        if (err) {
+            console.error('Error:', err);
+        } else {
+            console.table(result.rows);
+        }
+        inquirer
+            .prompt([
+                {
+                    name: 'currentRoleId',
+                    type: 'input',
+                    message: 'Select current Role ID:',
+                },
+                {
+                    name: 'newRoleId',
+                    type: 'input',
+                    message: 'Select new Role ID:'
+                }
+            ])
+            .then((response) => {
+                const updateEmpRole = `UPDATE employee SET role_id = $1 WHERE id = $2`;
+                pool.query(updateEmpRole, [response.currentRoleId, response.newRoleId], (err, result) => {
+                    if (err) {
+                        console.error('Error:', err);
+                        startCli();
+                    } else {
+                        console.log(`Employee Role Updated from ${response.currentRoleId} to ${response.newRoleId}`);
+                        console.table(result.rows)
+                        startCli();
+                    }
+                })
+            })
+    })
 }
 
 function viewAllRoles() {
     const sql = `SELECT * FROM role`;
-    pool.query(sql, (err, res) => {
+    pool.query(sql, (err, result) => {
         if (err) {
             console.error('Error: ', err);
         } else {
-            console.table(res.rows)
+            console.table(result.rows);
+            startCli();
         }
     })
-    startCli();
 }
 
 function addRole() {
@@ -153,29 +169,29 @@ function addRole() {
                 message: 'Please add the Salary'
             }
         ])
-        .then((res) => {
+        .then((response) => {
             const sql = `INSERT INTO role (title , salary) ($1, $2)`;
-            pool.query(sql, [res.roleTitle, res.roleSalary], (err, res) => {
+            pool.query(sql, [response.roleTitle, response.roleSalary], (err, result) => {
                 if (err) {
                     console.error('Error: ', err);
                 } else {
-                    console.table(res.rows)
+                    console.table(result.rows);
+                    startCli();
                 }
             })
         })
-    return;
 }
 
 function viewAllDepartments() {
     const sql = `SELECT * FROM department`;
-    pool.query(sql, (err, res) => {
+    pool.query(sql, (err, result) => {
         if (err) {
             console.error('Error: ', err);
         } else {
-            console.table(res.rows);
+            console.table(result.rows);
+            startCli();
         }
     })
-    startCli();
 }
 
 function addDepartment() {
@@ -192,14 +208,14 @@ function addDepartment() {
                 message: 'Assign a ID number'
             }
         ])
-        .then((res) => {
+        .then((response) => {
             const sql = `INSERT INTO department (id , name) VALUES ($1, $2)`;
-            pool.query(sql, [res.newDeptId, res.newDept], (err, res) => {
+            pool.query(sql, [response.newDeptId, response.newDept], (err, result) => {
                 if (err) {
                     console.error('Error: ', err);
                 } else {
                     console.log('New Department Added.');
-                    console.table(res.rows);
+                    console.table(result.rows);
                     startCli();
                 }
             })

@@ -25,3 +25,5 @@ UPDATE employee SET role_id = $1 WHERE id = $2
 UPDATE employee
 SET role_id = ?
 WHERE id = ?;
+
+UPDATE employee SET role_id = $1 WHERE id = $2
