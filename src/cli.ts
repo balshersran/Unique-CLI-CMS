@@ -144,10 +144,11 @@ function updateEmployeeRole() {
 }
 
 function viewAllRoles() {
-    const sql = `SELECT * FROM role`;
+    const sql = `SELECT * FROM role INNER JOIN department ON role.id = department.id`;
     pool.query(sql, (err, result) => {
         if (err) {
             console.error('Error: ', err);
+            startCli();
         } else {
             console.table(result.rows);
             startCli();
@@ -156,30 +157,45 @@ function viewAllRoles() {
 }
 
 function addRole() {
-    inquirer
-        .prompt([
-            {
-                name: 'roleTitle',
-                type: 'input',
-                message: 'Please input the Title for this role',
-            },
-            {
-                name: 'roleSalary',
-                type: 'input',
-                message: 'Please add the Salary'
-            }
-        ])
-        .then((response) => {
-            const sql = `INSERT INTO role (title , salary) VALUES ($1, $2)`;
-            pool.query(sql, [response.roleTitle, response.roleSalary], (err, result) => {
-                if (err) {
-                    console.error('Error: ', err);
-                } else {
-                    console.table(result.rows);
-                    startCli();
+    const roleQuery = `SELECT role.title, role.salary, department_id AS Department_Name FROM role JOIN department ON department_id = department.id`;
+    pool.query(roleQuery, (err, result) => {
+        if (err) {
+            console.error('Error: ', err);
+            startCli();
+        } else {
+            console.table(result.rows);
+            inquirer    
+            .prompt([
+                {
+                    name: 'roleTitle',
+                    type: 'input',
+                    message: 'Please input the Title for this role',
+                },
+                {
+                    name: 'roleSalary',
+                    type: 'input',
+                    message: 'Please add the Salary'
+                },
+                {
+                    name: 'dept',
+                    type: 'input',
+                    message: 'Enter Department ID: ',
                 }
+            ])
+            .then((response) => {
+                const sql = `INSERT INTO role (title , salary, department_id) VALUES ($1, $2, $3) RETURNING *`;
+                pool.query(sql, [response.roleTitle, response.roleSalary, response.dept], (err, result) => {
+                    if (err) {
+                        console.error('Error: ', err);
+                        startCli();
+                    } else {
+                        console.table(result.rows);
+                        startCli();
+                    }
+                })
             })
-        })
+        }
+    })
 }
 
 function viewAllDepartments() {
