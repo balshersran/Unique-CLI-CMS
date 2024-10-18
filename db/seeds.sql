@@ -1,3 +1,4 @@
+-- mock up seeds for department table
 INSERT INTO department ( name)
     VALUES 
         ('Sales'),
@@ -6,6 +7,7 @@ INSERT INTO department ( name)
         ('Engineering'),
         ('Human Resources')
 
+-- mock up seeds for role table
 INSERT INTO role (title, salary , department_id)
     VALUES
         ('Sales Manager', 100000 ,1),
@@ -19,6 +21,7 @@ INSERT INTO role (title, salary , department_id)
         ('Financial Analyst', 120000 ,3),
         ('Account Manager', 160000 ,3)
 
+-- mock up seeds for employee table
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
     VALUES
         ('John', 'Kennedy', 7 , 8),
