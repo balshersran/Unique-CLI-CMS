@@ -1,33 +1,48 @@
-SELECT * FROM employee;
-
-SELECT * FROM role;
+-- Drop a database if it exists beforehand
 DROP DATABASE IF EXISTS cms_db;
+
+-- Create a new database labled cms_db
 CREATE DATABASE cms_db;
 
+-- go to the database
 \c cms_db
 
-CREATE TABLE department (
-
+-- refer to schema.sql / seeds.sql for the remainder of the codes below
 SELECT * FROM department;
 SELECT * FROM role;
 SELECT * FROM employee;
 
+-- make query for view all employees method
+SELECT salary , emp.first_name AS first_name, emp.last_name AS last_name , mng.first_name AS manager_first_name , mng.last_name AS manager_last_name, title AS role, name AS department 
+FROM employee emp 
+LEFT JOIN employee mng ON emp.manager_id = mng.id 
+INNER JOIN role ON role.id = emp.role_id 
+INNER JOIN department ON role.department_id = department.id 
 
+-- make a queries needed for add employee method
+SELECT * FROM role
 
-DELETE FROM department WHERE id IN (7)
+SELECT * FROM employee
 
-INSERT INTO employee (first_name , last_name) VALUES ($1 , $2)
+INSERT INTO employee (first_name , last_name, role_id, manager_id) VALUES ($1 , $2 , $3, $4) RETURNING *
 
-INSERT INTO employee (first_name , last_name) VALUES ($1 , $2) RETURNING id
+-- make queries for update employee role method
+SELECT * FROM employee
 
-UPDATE employee SET role_id = $1 WHERE id = $2
+SELECT * FROM role
 
-UPDATE employee
-SET role_id = ?
-WHERE id = ?;
+UPDATE employee SET role_id = $2 WHERE id = $1 RETURNING *
 
-UPDATE employee SET role_id = $1 UPDATE employee SET role_id = $1 WHERE id = $2
+-- make query for view all roles method 
+SELECT * FROM role JOIN department ON role.department_id = department.id
 
-SELECT * FROM role INNER JOIN department ON role.id = department.id
+-- make queries for add role method
+SELECT * FROM department
 
-SELECT * FROM employee INNER JOIN role ON role.id = employee.id INNER JOIN department ON role.id = department.id INNER JOIN employee ON manager_id = employee.id
+NSERT INTO role (title , salary, department_id) VALUES ($1, $2, $3) RETURNING *
+
+-- make query for view all departments method
+SELECT * FROM department
+
+-- make query for add department method
+INSERT INTO department (ame) VALUES ($1)
