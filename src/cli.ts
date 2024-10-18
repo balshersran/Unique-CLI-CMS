@@ -289,13 +289,14 @@ function addDepartment() {
             }
         ])
         .then((response) => {
-            const sql = `INSERT INTO department (ame) VALUES ($1)`;
+            const sql = `INSERT INTO department (name) VALUES ($1) RETURNING department`;
             pool.query(sql, [response.newDept], (err, result) => {
                 if (err) {
                     console.error('Error: ', err);
+                    startCli();
                 } else {
                     console.log('New Department Added.');
-                    console.table(result.rows);
+                    console.table(result.rows)
                     startCli();
                 }
             })
