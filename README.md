@@ -33,7 +33,7 @@ Email: Please reach out via GitHub for any questions or inputs!
 
 ## Links
 GitHub Repo: https://github.com/balshersran/Unique-CLI-CMS
-Walkthrough Video: 
+Walkthrough Video: https://drive.google.com/file/d/1hd01DKEPEfS2azi5oNvulFqz7_N91o8V/view
 
 ## License
 
