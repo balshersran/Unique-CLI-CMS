@@ -28,9 +28,6 @@ WHERE id = ?;
 
 UPDATE employee SET role_id = $1 UPDATE employee SET role_id = $1 WHERE id = $2
 
-CREATE PROCEDURE add_role_and_update_department(title VARCHAR, salary DECIMAL, department_id INTEGER)
-AS
-BEGIN
-    INSERT INTO role (title, salary) VALUES (title, salary) RETURNING id INTO @new_role_id;
-    UPDATE department SET role_id = @new_role_id WHERE id = department_id;
-END;
+SELECT * FROM role INNER JOIN department ON role.id = department.id
+
+SELECT * FROM employee INNER JOIN role ON role.id = employee.id INNER JOIN department ON role.id = department.id INNER JOIN employee ON manager_id = employee.id

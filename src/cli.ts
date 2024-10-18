@@ -61,10 +61,11 @@ function startCli() {
 startCli();
 
 function viewAllEmployees() {
-    const sql = `SELECT * FROM employee`;
+    const sql = `SELECT salary , emp.first_name AS first_name, emp.last_name AS last_name , mng.first_name AS manager_first_name , mng.last_name AS manager_last_name, title AS role, name AS department FROM employee emp LEFT JOIN employee mng ON emp.manager_id = mng.id INNER JOIN role ON role.id = emp.role_id INNER JOIN department ON role.department_id = department.id `;
     pool.query(sql, (err, result) => {
         if (err) {
             console.error('Error:', err);
+            startCli();
         } else {
             console.table(result.rows);
             startCli();
@@ -73,78 +74,133 @@ function viewAllEmployees() {
 }
 
 function addEmployee() {
-    inquirer
-        .prompt([
-            {
-                name: 'firstName',
-                type: 'input',
-                message: 'Enter First Name:',
-            },
-            {
-                name: 'lastName',
-                type: 'input',
-                message: 'Enter Last Name:',
-            },
-            {
-                name: 'roleId',
-                type: 'input',
-                message: 'Add a Role ID:',
-            }
-        ])
-        .then((response) => {
-            const newEmpQuery = `INSERT INTO employee (first_name , last_name, role_id) VALUES ($1 , $2 , $3) RETURNING *`;
-            pool.query(newEmpQuery, [response.firstName, response.lastName, response.roleId], (err, result) => {
+    const roleQuery = `SELECT * FROM role`;
+    pool.query(roleQuery, (err, role) => {
+        if (err) {
+            console.error('Error: ', err);
+            startCli();
+        } else {
+            console.table(role.rows);
+            const roleQuery = `SELECT * FROM employee`;
+            pool.query(roleQuery, (err, emp) => {
                 if (err) {
-                    console.error('Error:', err);
+                    console.error('Error: ', err);
                     startCli();
                 } else {
-                    console.log(`New Employee: ${response.firstName} ${response.lastName} added succesfully.`);
-                    console.table(result.rows[0]);
-                    startCli();
+                    console.table(emp.rows);
+                    inquirer
+                        .prompt([
+                            {
+                                name: 'firstName',
+                                type: 'input',
+                                message: 'Enter First Name:',
+                            },
+                            {
+                                name: 'lastName',
+                                type: 'input',
+                                message: 'Enter Last Name:',
+                            },
+                            {
+                                name: 'roleId',
+                                type: 'list',
+                                message: 'Select Role:',
+                                choices: role.rows.map((role) => {
+                                    return {
+                                        name: `${role.title}`,
+                                        value: role,
+                                    };
+                                })
+                            },
+                            {
+                                name: 'managerId',
+                                type: 'list',
+                                message: 'Select Manager:',
+                                choices: emp.rows.map((emp) => {
+                                    return {
+                                        name: `${emp.first_name}`,
+                                        value: emp,
+                                    };
+                                })
+                            },
+                        ])
+                        .then((response) => {
+                            const newEmpQuery = `INSERT INTO employee (first_name , last_name, role_id, manager_id) VALUES ($1 , $2 , $3, $4) RETURNING *`;
+                            pool.query(newEmpQuery, [response.firstName, response.lastName, response.roleId.id, response.managerId.manager_id], (err, result) => {
+                                if (err) {
+                                    console.error('Error:', err);
+                                    startCli();
+                                } else {
+                                    console.log(`New Employee: ${response.firstName} ${response.lastName} added succesfully.`);
+                                    console.table(result.rows[0]);
+                                    startCli();
+                                }
+                            })
+                        })
                 }
             })
-        })
+        }
+    })
 }
-
 function updateEmployeeRole() {
     const currentEmpRoleQuery = `SELECT * FROM employee`;
-    pool.query(currentEmpRoleQuery, (err, result) => {
+    pool.query(currentEmpRoleQuery, (err, emp) => {
         if (err) {
             console.error('Error:', err);
         } else {
-            console.table(result.rows);
-        }
-        inquirer
-            .prompt([
-                {
-                    name: 'currentRoleId',
-                    type: 'input',
-                    message: 'Select current Role ID:',
-                },
-                {
-                    name: 'newRoleId',
-                    type: 'input',
-                    message: 'Select new Role ID:'
+            console.table(emp.rows);
+            const currentEmpRoleQuery = `SELECT * FROM role`;
+            pool.query(currentEmpRoleQuery, (err, role) => {
+                if (err) {
+                    console.error('Error:', err);
+                } else {
+                    console.table(role.rows);
                 }
-            ])
-            .then((response) => {
-                const updateEmpRole = `UPDATE employee SET role_id = $1 WHERE id = $2 RETURNING *`;
-                pool.query(updateEmpRole, [response.currentRoleId, response.newRoleId], (err, result) => {
-                    if (err) {
-                        console.error('Error:', err);
-                        startCli();
-                    } else {
-                        console.log(`Employee Role Updated from ${response.currentRoleId} to ${response.newRoleId}`);
-                        console.table(result.rows)
-                        startCli();
-                    }
-                })
+                inquirer
+                    .prompt([
+                        {
+                            name: 'employeeId',
+                            type: 'list',
+                            message: 'Select Employee:',
+                            choices: emp.rows.map((emp) => {
+                                return {
+                                    name: `${emp.first_name}`,
+                                    value: emp,
+                                };
+                            })
+                        },
+                        {
+                            name: 'newRoleId',
+                            type: 'list',
+                            message: 'Select new Role:',
+                            choices: role.rows.map((role) => {
+                                return {
+                                    name: `${role.title}`,
+                                    value: role,
+                                };
+                            })
+                        }
+                    ])
+                    .then((response) => {
+                        const updateEmpRole = `UPDATE employee SET role_id = $2 WHERE id = $1 RETURNING *`;
+                        pool.query(updateEmpRole, [response.employeeId.id, response.newRoleId.id], (err, result) => {
+                            if (err) {
+                                console.error('Error:', err);
+                                startCli();
+                            } else {
+                                console.log(`Employee Role Updated with ${response.newRoleId.title}`);
+                                console.table(result.rows);
+                                startCli();
+                            }
+                        })
+                    })
             })
+        }
     })
 }
 
+
 function viewAllRoles() {
-    const sql = `SELECT * FROM role INNER JOIN department ON role.id = department.id`;
+    const sql = `SELECT * FROM role JOIN department ON role.department_id = department.id`;
     pool.query(sql, (err, result) => {
         if (err) {
             console.error('Error: ', err);
@@ -157,43 +213,49 @@ function viewAllRoles() {
 }
 
 function addRole() {
-    const roleQuery = `SELECT role.title, role.salary, department_id AS Department_Name FROM role JOIN department ON department_id = department.id`;
+    const roleQuery = `SELECT * FROM department`;
     pool.query(roleQuery, (err, result) => {
         if (err) {
             console.error('Error: ', err);
             startCli();
         } else {
             console.table(result.rows);
-            inquirer    
-            .prompt([
-                {
-                    name: 'roleTitle',
-                    type: 'input',
-                    message: 'Please input the Title for this role',
-                },
-                {
-                    name: 'roleSalary',
-                    type: 'input',
-                    message: 'Please add the Salary'
-                },
-                {
-                    name: 'dept',
-                    type: 'input',
-                    message: 'Enter Department ID: ',
-                }
-            ])
-            .then((response) => {
-                const sql = `INSERT INTO role (title , salary, department_id) VALUES ($1, $2, $3) RETURNING *`;
-                pool.query(sql, [response.roleTitle, response.roleSalary, response.dept], (err, result) => {
-                    if (err) {
-                        console.error('Error: ', err);
-                        startCli();
-                    } else {
-                        console.table(result.rows);
-                        startCli();
+            inquirer
+                .prompt([
+                    {
+                        name: 'roleTitle',
+                        type: 'input',
+                        message: 'Please input the Title for this role',
+                    },
+                    {
+                        name: 'roleSalary',
+                        type: 'input',
+                        message: 'Please add the Salary'
+                    },
+                    {
+                        name: 'dept',
+                        type: 'list',
+                        message: 'Enter Department: ',
+                        choices: result.rows.map((department) => {
+                            return {
+                                name: `${department.name}`,
+                                value: department,
+                            };
+                        })
                     }
+                ])
+                .then((response) => {
+                    const sql = `INSERT INTO role (title , salary, department_id) VALUES ($1, $2, $3) RETURNING *`;
+                    pool.query(sql, [response.roleTitle, response.roleSalary, response.dept.id], (err, result) => {
+                        if (err) {
+                            console.error('Error: ', err);
+                            startCli();
+                        } else {
+                            console.table(result.rows);
+                            startCli();
+                        }
+                    })
                 })
-            })
         }
     })
 }
@@ -217,16 +279,11 @@ function addDepartment() {
                 name: 'newDept',
                 type: 'input',
                 message: 'Enter name of new Department',
-            },
-            {
-                name: 'newDeptId',
-                type: 'input',
-                message: 'Assign a ID number'
             }
         ])
         .then((response) => {
-            const sql = `INSERT INTO department (id , name) VALUES ($1, $2)`;
-            pool.query(sql, [response.newDeptId, response.newDept], (err, result) => {
+            const sql = `INSERT INTO department (ame) VALUES ($1)`;
+            pool.query(sql, [response.newDept], (err, result) => {
                 if (err) {
                     console.error('Error: ', err);
                 } else {
