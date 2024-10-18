@@ -29,12 +29,11 @@ I would like to take a moment and thank my Instructor Bryan, TA Shawn, alongside
 
 ## Questions
 Github: balshersran
-
 Email: Please reach out via GitHub for any questions or inputs!
 
 ## Links
-GitHub Repo:
-Walkthrough Video:
+GitHub Repo: https://github.com/balshersran/Unique-CLI-CMS
+Walkthrough Video: 
 
 ## License
 
